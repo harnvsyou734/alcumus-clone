@@ -4,64 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alcumus Clone</title>
-    
+
     <!-- React & ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
+
     <!-- Babel for in-browser JSX parsing -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- KaTeX for Math -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-    
+
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         body { background-color: #ffffff; }
+        .loader { border: 3px solid #e5e7eb; border-top: 3px solid #1e40af; border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect, useRef, useCallback } = React;
 
-        const initialCalcProblems = [
-            {
-                id: 1,
-                topic: "Integration by Parts",
-                text: "Evaluate the integral: \\( \\int x e^x \\, dx \\)",
-                answer: "xe^x - e^x",
-                solution: "Using integration by parts: let \\( u = x \\) and \\( dv = e^x dx \\). Then \\( du = dx \\) and \\( v = e^x \\). The formula is \\( uv - \\int v \\, du = x e^x - \\int e^x \\, dx = x e^x - e^x + C \\)."
-            },
-            {
-                id: 2,
-                topic: "Trigonometric Integrals",
-                text: "Evaluate the integral: \\( \\int \\sin^2(x) \\, dx \\) (ignore the constant C)",
-                answer: "x/2 - sin(2x)/4",
-                solution: "Use the half-angle identity: \\( \\sin^2(x) = \\frac{1 - \\cos(2x)}{2} \\). Integrating this yields \\( \\frac{x}{2} - \\frac{\\sin(2x)}{4} \\)."
-            }
-        ];
+        // =============================================
+        // CONFIGURATION — Replace these with your Supabase project values
+        // =============================================
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';       // e.g. 'https://abcdefg.supabase.co'
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // e.g. 'eyJhbGciOiJI...'
 
+        const { createClient } = window.supabase;
+        const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+
+        // =============================================
+        // UTILITY: Render LaTeX math inside text
+        // =============================================
         const MathText = ({ text }) => {
             const containerRef = useRef(null);
             useEffect(() => {
-                if (containerRef.current) {
+                if (containerRef.current && text) {
                     const parts = text.split(/\\\(|\\\)/);
                     let html = "";
                     parts.forEach((part, index) => {
                         if (index % 2 === 1) {
-                            try {
-                                html += katex.renderToString(part, { throwOnError: false });
-                            } catch (e) {
-                                html += part;
-                            }
-                        } else {
-                            html += part;
-                        }
+                            try { html += katex.renderToString(part, { throwOnError: false }); }
+                            catch (e) { html += part; }
+                        } else { html += part; }
                     });
                     containerRef.current.innerHTML = html;
                 }
@@ -69,81 +65,186 @@
             return <span ref={containerRef}></span>;
         };
 
-        const App = () => {
-            const [currentView, setCurrentView] = useState("home"); 
-            const [selectedSubject, setSelectedSubject] = useState(null);
-            const [problems, setProblems] = useState(initialCalcProblems);
-            
-            // Profile state
-            const [userProfile, setUserProfile] = useState({
-                name: "Guest User",
-                institute: "Art of Problem Solving",
-                major: "Mathematics",
-                pictureUrl: ""
-            });
+        // Small loading spinner
+        const Spinner = () => <span className="loader"></span>;
 
-            // Play state
-            const [currentIndex, setCurrentIndex] = useState(0);
-            const [userAnswer, setUserAnswer] = useState("");
-            const [status, setStatus] = useState("idle"); 
 
-            const currentProblem = problems[currentIndex];
+        // =============================================
+        // SETUP CHECK — Show instructions if not configured
+        // =============================================
+        const SetupPage = () => (
+            <div className="max-w-2xl mx-auto mt-20 p-8 border-2 border-blue-800 rounded">
+                <h1 className="text-3xl font-bold text-blue-900 mb-6">⚙️ Setup Required</h1>
+                <p className="text-lg mb-4">You need to connect this app to Supabase. Follow these steps:</p>
+                <ol className="list-decimal ml-6 space-y-3 text-gray-700">
+                    <li>Go to <a href="https://supabase.com" target="_blank" className="text-blue-600 underline">supabase.com</a> and create a free account</li>
+                    <li>Click <strong>"New Project"</strong>, name it <code className="bg-gray-100 px-1">alcumus-clone</code></li>
+                    <li>Go to <strong>SQL Editor</strong> → paste and run the contents of <code className="bg-gray-100 px-1">supabase-setup.sql</code></li>
+                    <li>Go to <strong>Settings → API</strong> and copy your <strong>Project URL</strong> and <strong>anon/public key</strong></li>
+                    <li>
+                        Open <code className="bg-gray-100 px-1">index.html</code> and replace these two lines near the top:
+                        <pre className="bg-gray-100 p-3 rounded mt-2 text-sm overflow-x-auto">
+{`const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';`}
+                        </pre>
+                    </li>
+                    <li><strong>(Recommended)</strong> Go to <strong>Auth → Providers → Email</strong> and uncheck <em>"Confirm email"</em> for easier signup</li>
+                    <li>Refresh this page — done!</li>
+                </ol>
+            </div>
+        );
 
-            const handleSubmit = (e) => {
+
+        // =============================================
+        // AUTH PAGE — Login & Signup
+        // =============================================
+        const AuthPage = () => {
+            const [isLogin, setIsLogin] = useState(true);
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [name, setName] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
+            const [message, setMessage] = useState('');
+
+            const handleSubmit = async (e) => {
                 e.preventDefault();
-                if (status === "correct" || status === "gave_up") return;
-                
-                const normalize = (str) => str.replace(/\s+/g, '').toLowerCase();
-                if (normalize(userAnswer) === normalize(currentProblem.answer)) {
-                    setStatus("correct");
+                setLoading(true);
+                setError('');
+                setMessage('');
+
+                if (isLogin) {
+                    const { error } = await db.auth.signInWithPassword({ email, password });
+                    if (error) setError(error.message);
                 } else {
-                    setStatus("incorrect");
+                    const { data, error } = await db.auth.signUp({
+                        email,
+                        password,
+                        options: { data: { name: name || 'New User' } }
+                    });
+                    if (error) {
+                        setError(error.message);
+                    } else if (data.user && !data.session) {
+                        setMessage('Check your email for a confirmation link, then log in.');
+                    }
                 }
+                setLoading(false);
             };
 
-            const handleGiveUp = () => {
-                setStatus("gave_up");
-            };
+            return (
+                <div className="max-w-md mx-auto mt-20 p-8 border-2 border-blue-800 rounded">
+                    <h1 className="text-3xl font-bold text-blue-900 mb-2">Alcumus Clone</h1>
+                    <p className="text-gray-500 mb-8">Math practice, powered by community</p>
 
-            const handleNext = () => {
-                const nextIndex = (currentIndex + 1) % problems.length;
-                setCurrentIndex(nextIndex);
-                setUserAnswer("");
-                setStatus("idle");
-            };
+                    {/* Toggle Login / Sign Up */}
+                    <div className="flex mb-6 border-b-2 border-gray-200">
+                        <button
+                            className={`flex-1 pb-3 font-bold text-lg ${isLogin ? 'text-blue-800 border-b-2 border-blue-800' : 'text-gray-400'}`}
+                            onClick={() => { setIsLogin(true); setError(''); setMessage(''); }}
+                        >
+                            LOG IN
+                        </button>
+                        <button
+                            className={`flex-1 pb-3 font-bold text-lg ${!isLogin ? 'text-blue-800 border-b-2 border-blue-800' : 'text-gray-400'}`}
+                            onClick={() => { setIsLogin(false); setError(''); setMessage(''); }}
+                        >
+                            SIGN UP
+                        </button>
+                    </div>
 
-            const handleAddProblem = (e) => {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                const newProblem = {
-                    id: problems.length + 1,
-                    topic: formData.get("topic"),
-                    text: formData.get("text"),
-                    answer: formData.get("answer"),
-                    solution: formData.get("solution")
+                    <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+                        {!isLogin && (
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Display Name</label>
+                                <input
+                                    type="text" value={name} onChange={(e) => setName(e.target.value)}
+                                    placeholder="e.g. John Doe"
+                                    className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500"
+                                />
+                            </div>
+                        )}
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Email</label>
+                            <input
+                                type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                                placeholder="you@example.com" required
+                                className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Password</label>
+                            <input
+                                type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+                                placeholder="At least 6 characters" required minLength={6}
+                                className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500"
+                            />
+                        </div>
+
+                        {error && <p className="text-red-600 text-sm bg-red-50 p-2 rounded">{error}</p>}
+                        {message && <p className="text-green-600 text-sm bg-green-50 p-2 rounded">{message}</p>}
+
+                        <button
+                            type="submit" disabled={loading}
+                            className="border-2 border-black font-bold py-3 text-black hover:bg-gray-100 disabled:opacity-50 mt-2"
+                        >
+                            {loading ? <Spinner /> : (isLogin ? 'LOG IN' : 'CREATE ACCOUNT')}
+                        </button>
+                    </form>
+                </div>
+            );
+        };
+
+
+        // =============================================
+        // MAIN APP — Shown after login
+        // =============================================
+        const MainApp = ({ session }) => {
+            const [currentView, setCurrentView] = useState("home");
+            const [userProfile, setUserProfile] = useState({ name: 'Loading...', institute: '', major: '', picture_url: '' });
+            const [subjects, setSubjects] = useState([]);
+            const [selectedSubject, setSelectedSubject] = useState(null);
+            const [stats, setStats] = useState({ solved: 0, attempts: 0, total: 0 });
+
+            // Fetch profile + subjects + stats on mount
+            useEffect(() => {
+                const init = async () => {
+                    // Fetch profile
+                    const { data: profile } = await db.from('profiles').select('*').eq('id', session.user.id).single();
+                    if (profile) setUserProfile(profile);
+
+                    // Fetch subjects
+                    const { data: subs } = await db.from('subjects').select('*').order('id');
+                    if (subs) setSubjects(subs);
+
+                    // Fetch stats
+                    await refreshStats();
                 };
-                setProblems([...problems, newProblem]);
-                e.target.reset();
-                alert("Problem added successfully!");
+                init();
+            }, [session]);
+
+            const refreshStats = async () => {
+                const { count: total } = await db.from('problems').select('*', { count: 'exact', head: true });
+
+                const { data: progress } = await db.from('user_progress').select('problem_id, is_correct').eq('user_id', session.user.id);
+
+                const attempts = progress ? progress.length : 0;
+                const solvedIds = new Set();
+                if (progress) progress.forEach(p => { if (p.is_correct) solvedIds.add(p.problem_id); });
+
+                setStats({ solved: solvedIds.size, attempts, total: total || 0 });
             };
 
-            const handleUpdateProfile = (e) => {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                setUserProfile({
-                    name: formData.get("name"),
-                    institute: formData.get("institute"),
-                    major: formData.get("major"),
-                    pictureUrl: formData.get("pictureUrl")
-                });
-                alert("Profile saved successfully!");
+            const handleLogout = async () => {
+                await db.auth.signOut();
             };
 
             const navigate = (view) => {
                 setCurrentView(view);
-                if (view === 'play' && !selectedSubject) {
-                    setSelectedSubject("Calculus II");
-                }
+            };
+
+            const goToPlay = (subject) => {
+                setSelectedSubject(subject);
+                setCurrentView('play');
             };
 
             const getNavClass = (viewName) => {
@@ -151,232 +252,562 @@
                 return `uppercase tracking-wide hover:opacity-75 ${isActive ? 'text-blue-800 underline' : 'text-blue-500'}`;
             };
 
+            // Group subjects by level
+            const subjectsByLevel = {};
+            subjects.forEach(s => {
+                if (!subjectsByLevel[s.level]) subjectsByLevel[s.level] = [];
+                subjectsByLevel[s.level].push(s);
+            });
+
             return (
                 <div className="max-w-4xl mx-auto min-h-screen border-x-2 border-gray-100 flex flex-col font-sans">
                     {/* Navigation Bar */}
-                    <nav className="flex justify-between items-center p-6 border-b-2 border-blue-800 mb-8">
-                        <div className="flex space-x-12 text-xl font-bold">
+                    <nav className="flex justify-between items-center p-6 border-b-2 border-blue-800 mb-4">
+                        <div className="flex space-x-8 text-lg font-bold flex-wrap gap-y-2">
                             <button className={getNavClass('home')} onClick={() => navigate('home')}>HOME</button>
                             <button className={getNavClass('play')} onClick={() => navigate('play')}>PLAY</button>
                             <button className={getNavClass('learn')} onClick={() => navigate('learn')}>LEARN</button>
                             <button className={getNavClass('archived')} onClick={() => navigate('archived')}>ARCHIVED</button>
                             <button className={getNavClass('add')} onClick={() => navigate('add')}>+ ADD</button>
                         </div>
-                        <div 
-                            className="flex items-center space-x-3 text-blue-700 cursor-pointer transition-transform hover:scale-105" 
-                            onClick={() => navigate('profile')}
-                            title="Edit Profile"
-                        >
-                            <span className="font-semibold text-lg">{userProfile.name.split(' ')[0]}</span>
-                            {userProfile.pictureUrl ? (
-                                <img 
-                                    src={userProfile.pictureUrl} 
-                                    alt="Profile" 
-                                    className={`h-10 w-10 rounded-full object-cover border-2 ${currentView === 'profile' ? 'border-blue-900 shadow-lg' : 'border-blue-700'}`} 
-                                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/150?text=Error'; }}
-                                />
-                            ) : (
-                                <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 ${currentView === 'profile' ? 'text-blue-900 drop-shadow-md' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            )}
+                        <div className="flex items-center space-x-4">
+                            <div
+                                className="flex items-center space-x-2 text-blue-700 cursor-pointer transition-transform hover:scale-105"
+                                onClick={() => navigate('profile')} title="Edit Profile"
+                            >
+                                <span className="font-semibold">{userProfile.name.split(' ')[0]}</span>
+                                {userProfile.picture_url ? (
+                                    <img src={userProfile.picture_url} alt="Profile"
+                                        className={`h-9 w-9 rounded-full object-cover border-2 ${currentView === 'profile' ? 'border-blue-900 shadow-lg' : 'border-blue-700'}`}
+                                        onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; }}
+                                    />
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                )}
+                            </div>
+                            <button onClick={handleLogout} className="text-sm text-gray-400 hover:text-red-500 font-medium" title="Log out">
+                                Logout
+                            </button>
                         </div>
                     </nav>
 
+                    {/* Stats Bar */}
+                    <div className="px-8 mb-4">
+                        <div className="flex items-center space-x-6 text-sm text-gray-500">
+                            <span>✅ Solved: <strong className="text-blue-800">{stats.solved}</strong> / {stats.total}</span>
+                            <span>📝 Attempts: <strong className="text-blue-800">{stats.attempts}</strong></span>
+                            <span>🎯 Accuracy: <strong className="text-blue-800">{stats.attempts > 0 ? Math.round((stats.solved / stats.attempts) * 100) : 0}%</strong></span>
+                            {stats.total > 0 && (
+                                <div className="flex-1 bg-gray-200 rounded-full h-2 max-w-xs">
+                                    <div className="bg-blue-600 h-2 rounded-full transition-all" style={{ width: `${Math.round((stats.solved / stats.total) * 100)}%` }}></div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     {/* Main Content Area */}
                     <div className="flex-1 px-8 pb-8 flex flex-col">
-                        
-                        {/* Profile Edit View */}
-                        {currentView === 'profile' && (
-                            <div className="max-w-2xl mx-auto w-full border-2 border-blue-800 p-8 rounded mt-4">
-                                <div className="flex justify-between items-start mb-8">
-                                    <h2 className="text-2xl font-bold text-blue-900">Your Profile</h2>
-                                    
-                                    {/* Preview Card */}
-                                    <div className="flex items-center space-x-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                        {userProfile.pictureUrl ? (
-                                            <img src={userProfile.pictureUrl} alt="Avatar" className="h-16 w-16 rounded-full object-cover border-2 border-blue-800" />
-                                        ) : (
-                                            <div className="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 border-2 border-blue-300">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                </svg>
-                                            </div>
-                                        )}
-                                        <div>
-                                            <p className="font-bold text-lg">{userProfile.name}</p>
-                                            <p className="text-sm text-gray-600">{userProfile.major}</p>
-                                            <p className="text-xs text-gray-400">{userProfile.institute}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <form onSubmit={handleUpdateProfile} className="flex flex-col space-y-5">
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Display Name</label>
-                                        <input name="name" defaultValue={userProfile.name} placeholder="e.g. John Doe" className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" required />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Institute / University</label>
-                                        <input name="institute" defaultValue={userProfile.institute} placeholder="e.g. MIT" className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Major / Subject</label>
-                                        <input name="major" defaultValue={userProfile.major} placeholder="e.g. Computer Science" className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Profile Picture URL</label>
-                                        <input name="pictureUrl" defaultValue={userProfile.pictureUrl} placeholder="https://example.com/avatar.jpg" className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" />
-                                        <p className="text-xs text-gray-500 mt-1">Paste a link to an image. Leave blank for default icon.</p>
-                                    </div>
-                                    <button type="submit" className="border-2 border-black font-bold py-3 text-black hover:bg-gray-100 mt-6">
-                                        SAVE PROFILE
-                                    </button>
-                                </form>
-                            </div>
-                        )}
 
-                        {/* Existing Views below */}
+                        {/* ========== HOME VIEW ========== */}
                         {currentView === 'home' && (
                             <div className="space-y-8 pl-4">
-                                <div>
-                                    <h2 className="text-2xl text-orange-600 font-semibold mb-4">High school</h2>
-                                    <ul className="space-y-3 text-lg font-medium text-orange-500 ml-2">
-                                        <li className="flex items-center"><span className="mr-3">➔</span> Pre-Calculus</li>
-                                        <li className="flex items-center"><span className="mr-3">➔</span> Algebra II</li>
-                                        <li className="flex items-center"><span className="mr-3">➔</span> Geometry</li>
-                                    </ul>
-                                </div>
-
-                                <div>
-                                    <h2 className="text-2xl text-orange-600 font-semibold mb-4 mt-8">Undergraduate</h2>
-                                    <ul className="space-y-3 text-lg font-medium text-orange-500 ml-2">
-                                        <li className="flex items-center">
-                                            <span className="mr-3">➔</span>
-                                            <button 
-                                                onClick={() => { setSelectedSubject("Calculus II"); setCurrentView("play"); }}
-                                                className="text-orange-500 hover:underline text-left focus:outline-none"
-                                            >
-                                                Cal II
-                                            </button>
-                                        </li>
-                                        <li className="flex items-center"><span className="mr-3">➔</span> Gen Phy II</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        )}
-
-                        {currentView === 'play' && (
-                            <div className="border-2 border-blue-800 p-8 min-h-[400px] flex flex-col relative flex-1 mb-8">
-                                <div className="flex justify-between items-center mb-8 text-blue-800 text-xl font-medium">
-                                    <span>{selectedSubject || "Calculus II"}</span>
-                                    <span>Topics : {status === 'idle' ? '???' : currentProblem.topic}</span>
-                                </div>
-
-                                <div className="flex-1 text-2xl mb-8 p-4 border border-red-200 rounded-xl bg-red-50/20">
-                                    <MathText text={currentProblem.text} />
-                                </div>
-
-                                {(status !== "idle") && (
-                                    <div className={`mb-8 p-4 rounded border ${status === 'correct' ? 'bg-green-50 border-green-200 text-green-800' : status === 'incorrect' ? 'bg-red-50 border-red-200 text-red-800' : 'bg-blue-50 border-blue-200 text-blue-800'}`}>
-                                        {status === 'correct' && <p className="font-bold text-lg">Correct!</p>}
-                                        {status === 'incorrect' && <p className="font-bold text-lg">Incorrect, try again.</p>}
-                                        {(status === 'correct' || status === 'gave_up') && (
-                                            <div className="mt-4 border-t pt-4">
-                                                <p className="font-bold mb-2">Solution:</p>
-                                                <MathText text={currentProblem.solution} />
-                                            </div>
-                                        )}
+                                {Object.entries(subjectsByLevel).map(([level, subs]) => (
+                                    <div key={level}>
+                                        <h2 className="text-2xl text-orange-600 font-semibold mb-4">{level}</h2>
+                                        <ul className="space-y-3 text-lg font-medium text-orange-500 ml-2">
+                                            {subs.map(subject => (
+                                                <li key={subject.id} className="flex items-center">
+                                                    <span className="mr-3">➔</span>
+                                                    <button
+                                                        onClick={() => goToPlay(subject)}
+                                                        className="text-orange-500 hover:underline text-left focus:outline-none"
+                                                    >
+                                                        {subject.name}
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
+                                ))}
+                                {subjects.length === 0 && (
+                                    <p className="text-gray-400 text-lg">Loading subjects... <Spinner /></p>
                                 )}
-
-                                <div className="flex justify-between items-end mt-auto pt-4">
-                                    <form onSubmit={handleSubmit} className="flex items-end space-x-2">
-                                        <input
-                                            type="text"
-                                            value={userAnswer}
-                                            onChange={(e) => setUserAnswer(e.target.value)}
-                                            disabled={status === "correct" || status === "gave_up"}
-                                            className="border-2 border-orange-500 px-4 py-2 w-64 text-lg outline-none focus:ring-2 focus:ring-orange-300"
-                                            autoComplete="off"
-                                        />
-                                        <span className="text-orange-500 font-medium text-lg pb-1">Answer</span>
-                                    </form>
-
-                                    <div className="space-x-3 flex">
-                                        {(status === "correct" || status === "gave_up") ? (
-                                            <button 
-                                                onClick={handleNext}
-                                                className="border-2 border-black px-6 py-2 font-bold text-black hover:bg-gray-100"
-                                            >
-                                                NEXT PROBLEM
-                                            </button>
-                                        ) : (
-                                            <React.Fragment>
-                                                <button 
-                                                    onClick={handleSubmit}
-                                                    disabled={status === "correct" || status === "gave_up"}
-                                                    className="border-2 border-black px-6 py-2 font-bold text-black hover:bg-gray-100 disabled:opacity-50"
-                                                >
-                                                    SUBMIT
-                                                </button>
-                                                <button 
-                                                    onClick={handleGiveUp}
-                                                    disabled={status === "correct" || status === "gave_up"}
-                                                    className="border-2 border-black px-6 py-2 font-bold text-black hover:bg-gray-100 disabled:opacity-50"
-                                                >
-                                                    GIVE UP
-                                                </button>
-                                            </React.Fragment>
-                                        )}
-                                    </div>
-                                </div>
                             </div>
                         )}
 
+
+                        {/* ========== PLAY VIEW ========== */}
+                        {currentView === 'play' && (
+                            <PlayView
+                                session={session}
+                                subject={selectedSubject}
+                                subjects={subjects}
+                                onSelectSubject={setSelectedSubject}
+                                onStatsChange={refreshStats}
+                            />
+                        )}
+
+
+                        {/* ========== LEARN VIEW (placeholder) ========== */}
                         {currentView === 'learn' && (
                             <div className="flex-1 flex items-center justify-center text-gray-400 text-2xl font-bold">
-                                LEARN Page (Blank)
-                            </div>
-                        )}
-                        
-                        {currentView === 'archived' && (
-                            <div className="flex-1 flex items-center justify-center text-gray-400 text-2xl font-bold">
-                                ARCHIVED Page (Blank)
+                                LEARN Page (Coming Soon)
                             </div>
                         )}
 
-                        {currentView === 'add' && (
-                            <div className="max-w-2xl mx-auto w-full border-2 border-blue-800 p-8 rounded mt-4">
-                                <h2 className="text-2xl font-bold text-blue-900 mb-6">Add a New Problem</h2>
-                                <form onSubmit={handleAddProblem} className="flex flex-col space-y-5">
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Topic</label>
-                                        <input name="topic" placeholder="e.g. Limits" className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" required />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Problem Text (Use \( \) for math)</label>
-                                        <textarea name="text" rows="3" placeholder="e.g. Evaluate \( \lim_{x \to 0} \frac{\sin x}{x} \)" className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" required />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Correct Answer</label>
-                                        <input name="answer" placeholder="e.g. 1" className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" required />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Solution</label>
-                                        <textarea name="solution" rows="4" placeholder="Explain the steps..." className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" required />
-                                    </div>
-                                    <button type="submit" className="border-2 border-black font-bold py-3 text-black hover:bg-gray-100 mt-4">
-                                        ADD PROBLEM
-                                    </button>
-                                </form>
+                        {/* ========== ARCHIVED VIEW (placeholder) ========== */}
+                        {currentView === 'archived' && (
+                            <div className="flex-1 flex items-center justify-center text-gray-400 text-2xl font-bold">
+                                ARCHIVED Page (Coming Soon)
                             </div>
+                        )}
+
+
+                        {/* ========== ADD PROBLEM VIEW ========== */}
+                        {currentView === 'add' && (
+                            <AddView session={session} subjects={subjects} />
+                        )}
+
+
+                        {/* ========== PROFILE VIEW ========== */}
+                        {currentView === 'profile' && (
+                            <ProfileView
+                                session={session}
+                                profile={userProfile}
+                                onProfileUpdate={(updated) => setUserProfile(updated)}
+                            />
                         )}
                     </div>
                 </div>
             );
         };
 
+
+        // =============================================
+        // PLAY VIEW — Solve problems
+        // =============================================
+        const PlayView = ({ session, subject, subjects, onSelectSubject, onStatsChange }) => {
+            const [currentProblem, setCurrentProblem] = useState(null);
+            const [userAnswer, setUserAnswer] = useState('');
+            const [status, setStatus] = useState('idle');
+            const [loading, setLoading] = useState(true);
+            const [allSolved, setAllSolved] = useState(false);
+
+            const fetchProblem = useCallback(async (subjectToFetch) => {
+                setLoading(true);
+                setUserAnswer('');
+                setStatus('idle');
+                setAllSolved(false);
+
+                const subjectId = subjectToFetch ? subjectToFetch.id : null;
+
+                // 1. Get IDs of problems user has already solved correctly
+                const { data: solvedData } = await db
+                    .from('user_progress')
+                    .select('problem_id')
+                    .eq('user_id', session.user.id)
+                    .eq('is_correct', true);
+
+                const solvedIds = new Set((solvedData || []).map(s => s.problem_id));
+
+                // 2. Fetch all problems for this subject
+                let query = db.from('problems').select('*');
+                if (subjectId) query = query.eq('subject_id', subjectId);
+                const { data: allProblems } = await query;
+
+                if (!allProblems || allProblems.length === 0) {
+                    setCurrentProblem(null);
+                    setLoading(false);
+                    return;
+                }
+
+                // 3. Filter to unsolved
+                const unsolved = allProblems.filter(p => !solvedIds.has(p.id));
+
+                // 4. Pick random
+                let pool = unsolved;
+                if (unsolved.length === 0) {
+                    pool = allProblems;
+                    setAllSolved(true);
+                }
+
+                const randomIndex = Math.floor(Math.random() * pool.length);
+                setCurrentProblem(pool[randomIndex]);
+                setLoading(false);
+            }, [session]);
+
+            useEffect(() => {
+                fetchProblem(subject);
+            }, [subject, fetchProblem]);
+
+            const handleSubmit = async (e) => {
+                if (e) e.preventDefault();
+                if (status === 'correct' || status === 'gave_up' || !currentProblem) return;
+
+                const normalize = (str) => str.replace(/\s+/g, '').toLowerCase();
+                const isCorrect = normalize(userAnswer) === normalize(currentProblem.answer);
+
+                // Save attempt to database
+                await db.from('user_progress').insert({
+                    user_id: session.user.id,
+                    problem_id: currentProblem.id,
+                    is_correct: isCorrect,
+                    user_answer: userAnswer
+                });
+
+                setStatus(isCorrect ? 'correct' : 'incorrect');
+                if (isCorrect) onStatsChange();
+            };
+
+            const handleGiveUp = async () => {
+                if (!currentProblem) return;
+                await db.from('user_progress').insert({
+                    user_id: session.user.id,
+                    problem_id: currentProblem.id,
+                    is_correct: false,
+                    user_answer: '(gave up)'
+                });
+                setStatus('gave_up');
+            };
+
+            const handleNext = () => {
+                fetchProblem(subject);
+                onStatsChange();
+            };
+
+            if (loading) {
+                return (
+                    <div className="flex-1 flex items-center justify-center">
+                        <Spinner /> <span className="ml-3 text-gray-500">Loading problem...</span>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="flex flex-col flex-1">
+                    {/* Subject selector */}
+                    {!subject && subjects.length > 0 && (
+                        <div className="mb-6 p-4 bg-blue-50 rounded border border-blue-200">
+                            <p className="font-bold text-blue-800 mb-3">Select a subject to practice:</p>
+                            <div className="flex flex-wrap gap-2">
+                                {subjects.map(s => (
+                                    <button
+                                        key={s.id}
+                                        onClick={() => onSelectSubject(s)}
+                                        className="border-2 border-blue-800 px-4 py-2 font-medium text-blue-800 hover:bg-blue-100 rounded"
+                                    >
+                                        {s.name}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {!currentProblem ? (
+                        <div className="flex-1 flex items-center justify-center text-gray-400 text-xl font-bold">
+                            No problems available for this subject yet. Add some!
+                        </div>
+                    ) : (
+                        <div className="border-2 border-blue-800 p-8 min-h-[400px] flex flex-col relative flex-1 mb-8">
+                            {allSolved && (
+                                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded mb-4 text-sm">
+                                    🎉 You've solved all problems in this subject! Here's one to review.
+                                </div>
+                            )}
+
+                            <div className="flex justify-between items-center mb-8 text-blue-800 text-xl font-medium">
+                                <span>{subject ? subject.name : 'All Subjects'}</span>
+                                <span>Topic: {status === 'idle' ? '???' : currentProblem.topic}</span>
+                            </div>
+
+                            <div className="flex-1 text-2xl mb-8 p-4 border border-red-200 rounded-xl bg-red-50/20">
+                                <MathText text={currentProblem.problem_text} />
+                            </div>
+
+                            {status !== 'idle' && (
+                                <div className={`mb-8 p-4 rounded border ${
+                                    status === 'correct' ? 'bg-green-50 border-green-200 text-green-800' :
+                                    status === 'incorrect' ? 'bg-red-50 border-red-200 text-red-800' :
+                                    'bg-blue-50 border-blue-200 text-blue-800'
+                                }`}>
+                                    {status === 'correct' && <p className="font-bold text-lg">✅ Correct!</p>}
+                                    {status === 'incorrect' && <p className="font-bold text-lg">❌ Incorrect, try again.</p>}
+                                    {(status === 'correct' || status === 'gave_up') && (
+                                        <div className="mt-4 border-t pt-4">
+                                            <p className="font-bold mb-2">Solution:</p>
+                                            <MathText text={currentProblem.solution} />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className="flex justify-between items-end mt-auto pt-4">
+                                <form onSubmit={handleSubmit} className="flex items-end space-x-2">
+                                    <input
+                                        type="text" value={userAnswer}
+                                        onChange={(e) => setUserAnswer(e.target.value)}
+                                        disabled={status === 'correct' || status === 'gave_up'}
+                                        className="border-2 border-orange-500 px-4 py-2 w-64 text-lg outline-none focus:ring-2 focus:ring-orange-300"
+                                        autoComplete="off" placeholder="Type your answer..."
+                                    />
+                                    <span className="text-orange-500 font-medium text-lg pb-1">Answer</span>
+                                </form>
+
+                                <div className="space-x-3 flex">
+                                    {(status === 'correct' || status === 'gave_up') ? (
+                                        <button onClick={handleNext}
+                                            className="border-2 border-black px-6 py-2 font-bold text-black hover:bg-gray-100">
+                                            NEXT PROBLEM
+                                        </button>
+                                    ) : (
+                                        <React.Fragment>
+                                            <button onClick={handleSubmit}
+                                                disabled={status === 'correct' || status === 'gave_up'}
+                                                className="border-2 border-black px-6 py-2 font-bold text-black hover:bg-gray-100 disabled:opacity-50">
+                                                SUBMIT
+                                            </button>
+                                            <button onClick={handleGiveUp}
+                                                disabled={status === 'correct' || status === 'gave_up'}
+                                                className="border-2 border-black px-6 py-2 font-bold text-black hover:bg-gray-100 disabled:opacity-50">
+                                                GIVE UP
+                                            </button>
+                                        </React.Fragment>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+
+        // =============================================
+        // ADD PROBLEM VIEW — Save new problems to database
+        // =============================================
+        const AddView = ({ session, subjects }) => {
+            const [saving, setSaving] = useState(false);
+            const [success, setSuccess] = useState('');
+            const [error, setError] = useState('');
+
+            const handleAddProblem = async (e) => {
+                e.preventDefault();
+                setSaving(true);
+                setSuccess('');
+                setError('');
+
+                const formData = new FormData(e.target);
+                const { error: insertError } = await db.from('problems').insert({
+                    subject_id: parseInt(formData.get('subject_id')),
+                    topic: formData.get('topic'),
+                    problem_text: formData.get('problem_text'),
+                    answer: formData.get('answer'),
+                    solution: formData.get('solution'),
+                    created_by: session.user.id
+                });
+
+                if (insertError) {
+                    setError(insertError.message);
+                } else {
+                    setSuccess('Problem added successfully! Everyone can now see it.');
+                    e.target.reset();
+                }
+                setSaving(false);
+            };
+
+            return (
+                <div className="max-w-2xl mx-auto w-full border-2 border-blue-800 p-8 rounded mt-4">
+                    <h2 className="text-2xl font-bold text-blue-900 mb-6">Add a New Problem</h2>
+                    <form onSubmit={handleAddProblem} className="flex flex-col space-y-5">
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Subject</label>
+                            <select name="subject_id" required
+                                className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500 bg-white">
+                                <option value="">Select a subject...</option>
+                                {subjects.map(s => (
+                                    <option key={s.id} value={s.id}>{s.name} ({s.level})</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Topic</label>
+                            <input name="topic" placeholder="e.g. Limits" required
+                                className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Problem Text (use \( \) for math)</label>
+                            <textarea name="problem_text" rows="3" required
+                                placeholder="e.g. Evaluate \( \lim_{x \to 0} \frac{\sin x}{x} \)"
+                                className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Correct Answer</label>
+                            <input name="answer" placeholder="e.g. 1" required
+                                className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Solution</label>
+                            <textarea name="solution" rows="4" placeholder="Explain the steps..." required
+                                className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" />
+                        </div>
+
+                        {error && <p className="text-red-600 text-sm bg-red-50 p-2 rounded">{error}</p>}
+                        {success && <p className="text-green-600 text-sm bg-green-50 p-2 rounded">{success}</p>}
+
+                        <button type="submit" disabled={saving}
+                            className="border-2 border-black font-bold py-3 text-black hover:bg-gray-100 mt-4 disabled:opacity-50">
+                            {saving ? <Spinner /> : 'ADD PROBLEM'}
+                        </button>
+                    </form>
+                </div>
+            );
+        };
+
+
+        // =============================================
+        // PROFILE VIEW — Edit your profile
+        // =============================================
+        const ProfileView = ({ session, profile, onProfileUpdate }) => {
+            const [saving, setSaving] = useState(false);
+            const [message, setMessage] = useState('');
+
+            const handleUpdateProfile = async (e) => {
+                e.preventDefault();
+                setSaving(true);
+                setMessage('');
+
+                const formData = new FormData(e.target);
+                const updates = {
+                    name: formData.get('name'),
+                    institute: formData.get('institute'),
+                    major: formData.get('major'),
+                    picture_url: formData.get('picture_url')
+                };
+
+                const { error } = await db
+                    .from('profiles')
+                    .update(updates)
+                    .eq('id', session.user.id);
+
+                if (error) {
+                    setMessage('Error: ' + error.message);
+                } else {
+                    onProfileUpdate({ ...profile, ...updates });
+                    setMessage('Profile saved!');
+                }
+                setSaving(false);
+            };
+
+            return (
+                <div className="max-w-2xl mx-auto w-full border-2 border-blue-800 p-8 rounded mt-4">
+                    <div className="flex justify-between items-start mb-8">
+                        <h2 className="text-2xl font-bold text-blue-900">Your Profile</h2>
+                        <div className="flex items-center space-x-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            {profile.picture_url ? (
+                                <img src={profile.picture_url} alt="Avatar" className="h-16 w-16 rounded-full object-cover border-2 border-blue-800" />
+                            ) : (
+                                <div className="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 border-2 border-blue-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                            )}
+                            <div>
+                                <p className="font-bold text-lg">{profile.name}</p>
+                                <p className="text-sm text-gray-600">{profile.major}</p>
+                                <p className="text-xs text-gray-400">{profile.institute}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleUpdateProfile} className="flex flex-col space-y-5">
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Display Name</label>
+                            <input name="name" defaultValue={profile.name} placeholder="e.g. John Doe" required
+                                className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Institute / University</label>
+                            <input name="institute" defaultValue={profile.institute} placeholder="e.g. MIT"
+                                className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Major / Subject</label>
+                            <input name="major" defaultValue={profile.major} placeholder="e.g. Computer Science"
+                                className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-bold text-gray-700 mb-1">Profile Picture URL</label>
+                            <input name="picture_url" defaultValue={profile.picture_url} placeholder="https://example.com/avatar.jpg"
+                                className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" />
+                            <p className="text-xs text-gray-500 mt-1">Paste a link to an image. Leave blank for default icon.</p>
+                        </div>
+
+                        {message && (
+                            <p className={`text-sm p-2 rounded ${message.startsWith('Error') ? 'text-red-600 bg-red-50' : 'text-green-600 bg-green-50'}`}>
+                                {message}
+                            </p>
+                        )}
+
+                        <button type="submit" disabled={saving}
+                            className="border-2 border-black font-bold py-3 text-black hover:bg-gray-100 mt-6 disabled:opacity-50">
+                            {saving ? <Spinner /> : 'SAVE PROFILE'}
+                        </button>
+                    </form>
+
+                    <p className="text-xs text-gray-400 mt-6">Logged in as: {session.user.email}</p>
+                </div>
+            );
+        };
+
+
+        // =============================================
+        // ROOT APP — Auth check wrapper
+        // =============================================
+        const App = () => {
+            const [session, setSession] = useState(null);
+            const [loading, setLoading] = useState(true);
+
+            // Check if Supabase is configured
+            const isConfigured = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
+
+            useEffect(() => {
+                if (!isConfigured) { setLoading(false); return; }
+
+                // Check existing session
+                db.auth.getSession().then(({ data: { session } }) => {
+                    setSession(session);
+                    setLoading(false);
+                });
+
+                // Listen for auth changes (login, logout, token refresh)
+                const { data: { subscription } } = db.auth.onAuthStateChange((_event, session) => {
+                    setSession(session);
+                });
+
+                return () => subscription.unsubscribe();
+            }, [isConfigured]);
+
+            if (loading) {
+                return (
+                    <div className="flex items-center justify-center min-h-screen">
+                        <Spinner />
+                        <span className="ml-3 text-gray-500 text-lg">Loading...</span>
+                    </div>
+                );
+            }
+
+            if (!isConfigured) return <SetupPage />;
+            if (!session) return <AuthPage />;
+            return <MainApp session={session} />;
+        };
+
+
+        // =============================================
+        // RENDER
+        // =============================================
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
