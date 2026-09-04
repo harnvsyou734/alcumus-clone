@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alcumus Clone</title>
+    
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for in-browser JSX parsing -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- KaTeX for Math -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    
+    <style>
+        body { background-color: #ffffff; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const initialCalcProblems = [
+            {
+                id: 1,
+                topic: "Integration by Parts",
+                text: "Evaluate the integral: \\( \\int x e^x \\, dx \\)",
+                answer: "xe^x - e^x",
+                solution: "Using integration by parts: let \\( u = x \\) and \\( dv = e^x dx \\). Then \\( du = dx \\) and \\( v = e^x \\). The formula is \\( uv - \\int v \\, du = x e^x - \\int e^x \\, dx = x e^x - e^x + C \\)."
+            },
+            {
+                id: 2,
+                topic: "Trigonometric Integrals",
+                text: "Evaluate the integral: \\( \\int \\sin^2(x) \\, dx \\) (ignore the constant C)",
+                answer: "x/2 - sin(2x)/4",
+                solution: "Use the half-angle identity: \\( \\sin^2(x) = \\frac{1 - \\cos(2x)}{2} \\). Integrating this yields \\( \\frac{x}{2} - \\frac{\\sin(2x)}{4} \\)."
+            }
+        ];
+
+        const MathText = ({ text }) => {
+            const containerRef = useRef(null);
+            useEffect(() => {
+                if (containerRef.current) {
+                    const parts = text.split(/\\\(|\\\)/);
+                    let html = "";
+                    parts.forEach((part, index) => {
+                        if (index % 2 === 1) {
+                            try {
+                                html += katex.renderToString(part, { throwOnError: false });
+                            } catch (e) {
+                                html += part;
+                            }
+                        } else {
+                            html += part;
+                        }
+                    });
+                    containerRef.current.innerHTML = html;
+                }
+            }, [text]);
+            return <span ref={containerRef}></span>;
+        };
+
+        const App = () => {
+            const [currentView, setCurrentView] = useState("home"); 
+            const [selectedSubject, setSelectedSubject] = useState(null);
+            const [problems, setProblems] = useState(initialCalcProblems);
+            
+            // Profile state
+            const [userProfile, setUserProfile] = useState({
+                name: "Guest User",
+                institute: "Art of Problem Solving",
+                major: "Mathematics",
+                pictureUrl: ""
+            });
+
+            // Play state
+            const [currentIndex, setCurrentIndex] = useState(0);
+            const [userAnswer, setUserAnswer] = useState("");
+            const [status, setStatus] = useState("idle"); 
+
+            const currentProblem = problems[currentIndex];
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (status === "correct" || status === "gave_up") return;
+                
+                const normalize = (str) => str.replace(/\s+/g, '').toLowerCase();
+                if (normalize(userAnswer) === normalize(currentProblem.answer)) {
+                    setStatus("correct");
+                } else {
+                    setStatus("incorrect");
+                }
+            };
+
+            const handleGiveUp = () => {
+                setStatus("gave_up");
+            };
+
+            const handleNext = () => {
+                const nextIndex = (currentIndex + 1) % problems.length;
+                setCurrentIndex(nextIndex);
+                setUserAnswer("");
+                setStatus("idle");
+            };
+
+            const handleAddProblem = (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const newProblem = {
+                    id: problems.length + 1,
+                    topic: formData.get("topic"),
+                    text: formData.get("text"),
+                    answer: formData.get("answer"),
+                    solution: formData.get("solution")
+                };
+                setProblems([...problems, newProblem]);
+                e.target.reset();
+                alert("Problem added successfully!");
+            };
+
+            const handleUpdateProfile = (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                setUserProfile({
+                    name: formData.get("name"),
+                    institute: formData.get("institute"),
+                    major: formData.get("major"),
+                    pictureUrl: formData.get("pictureUrl")
+                });
+                alert("Profile saved successfully!");
+            };
+
+            const navigate = (view) => {
+                setCurrentView(view);
+                if (view === 'play' && !selectedSubject) {
+                    setSelectedSubject("Calculus II");
+                }
+            };
+
+            const getNavClass = (viewName) => {
+                const isActive = currentView === viewName;
+                return `uppercase tracking-wide hover:opacity-75 ${isActive ? 'text-blue-800 underline' : 'text-blue-500'}`;
+            };
+
+            return (
+                <div className="max-w-4xl mx-auto min-h-screen border-x-2 border-gray-100 flex flex-col font-sans">
+                    {/* Navigation Bar */}
+                    <nav className="flex justify-between items-center p-6 border-b-2 border-blue-800 mb-8">
+                        <div className="flex space-x-12 text-xl font-bold">
+                            <button className={getNavClass('home')} onClick={() => navigate('home')}>HOME</button>
+                            <button className={getNavClass('play')} onClick={() => navigate('play')}>PLAY</button>
+                            <button className={getNavClass('learn')} onClick={() => navigate('learn')}>LEARN</button>
+                            <button className={getNavClass('archived')} onClick={() => navigate('archived')}>ARCHIVED</button>
+                            <button className={getNavClass('add')} onClick={() => navigate('add')}>+ ADD</button>
+                        </div>
+                        <div 
+                            className="flex items-center space-x-3 text-blue-700 cursor-pointer transition-transform hover:scale-105" 
+                            onClick={() => navigate('profile')}
+                            title="Edit Profile"
+                        >
+                            <span className="font-semibold text-lg">{userProfile.name.split(' ')[0]}</span>
+                            {userProfile.pictureUrl ? (
+                                <img 
+                                    src={userProfile.pictureUrl} 
+                                    alt="Profile" 
+                                    className={`h-10 w-10 rounded-full object-cover border-2 ${currentView === 'profile' ? 'border-blue-900 shadow-lg' : 'border-blue-700'}`} 
+                                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/150?text=Error'; }}
+                                />
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-8 ${currentView === 'profile' ? 'text-blue-900 drop-shadow-md' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            )}
+                        </div>
+                    </nav>
+
+                    {/* Main Content Area */}
+                    <div className="flex-1 px-8 pb-8 flex flex-col">
+                        
+                        {/* Profile Edit View */}
+                        {currentView === 'profile' && (
+                            <div className="max-w-2xl mx-auto w-full border-2 border-blue-800 p-8 rounded mt-4">
+                                <div className="flex justify-between items-start mb-8">
+                                    <h2 className="text-2xl font-bold text-blue-900">Your Profile</h2>
+                                    
+                                    {/* Preview Card */}
+                                    <div className="flex items-center space-x-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                        {userProfile.pictureUrl ? (
+                                            <img src={userProfile.pictureUrl} alt="Avatar" className="h-16 w-16 rounded-full object-cover border-2 border-blue-800" />
+                                        ) : (
+                                            <div className="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 border-2 border-blue-300">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                </svg>
+                                            </div>
+                                        )}
+                                        <div>
+                                            <p className="font-bold text-lg">{userProfile.name}</p>
+                                            <p className="text-sm text-gray-600">{userProfile.major}</p>
+                                            <p className="text-xs text-gray-400">{userProfile.institute}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <form onSubmit={handleUpdateProfile} className="flex flex-col space-y-5">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Display Name</label>
+                                        <input name="name" defaultValue={userProfile.name} placeholder="e.g. John Doe" className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" required />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Institute / University</label>
+                                        <input name="institute" defaultValue={userProfile.institute} placeholder="e.g. MIT" className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Major / Subject</label>
+                                        <input name="major" defaultValue={userProfile.major} placeholder="e.g. Computer Science" className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Profile Picture URL</label>
+                                        <input name="pictureUrl" defaultValue={userProfile.pictureUrl} placeholder="https://example.com/avatar.jpg" className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" />
+                                        <p className="text-xs text-gray-500 mt-1">Paste a link to an image. Leave blank for default icon.</p>
+                                    </div>
+                                    <button type="submit" className="border-2 border-black font-bold py-3 text-black hover:bg-gray-100 mt-6">
+                                        SAVE PROFILE
+                                    </button>
+                                </form>
+                            </div>
+                        )}
+
+                        {/* Existing Views below */}
+                        {currentView === 'home' && (
+                            <div className="space-y-8 pl-4">
+                                <div>
+                                    <h2 className="text-2xl text-orange-600 font-semibold mb-4">High school</h2>
+                                    <ul className="space-y-3 text-lg font-medium text-orange-500 ml-2">
+                                        <li className="flex items-center"><span className="mr-3">➔</span> Pre-Calculus</li>
+                                        <li className="flex items-center"><span className="mr-3">➔</span> Algebra II</li>
+                                        <li className="flex items-center"><span className="mr-3">➔</span> Geometry</li>
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <h2 className="text-2xl text-orange-600 font-semibold mb-4 mt-8">Undergraduate</h2>
+                                    <ul className="space-y-3 text-lg font-medium text-orange-500 ml-2">
+                                        <li className="flex items-center">
+                                            <span className="mr-3">➔</span>
+                                            <button 
+                                                onClick={() => { setSelectedSubject("Calculus II"); setCurrentView("play"); }}
+                                                className="text-orange-500 hover:underline text-left focus:outline-none"
+                                            >
+                                                Cal II
+                                            </button>
+                                        </li>
+                                        <li className="flex items-center"><span className="mr-3">➔</span> Gen Phy II</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
+
+                        {currentView === 'play' && (
+                            <div className="border-2 border-blue-800 p-8 min-h-[400px] flex flex-col relative flex-1 mb-8">
+                                <div className="flex justify-between items-center mb-8 text-blue-800 text-xl font-medium">
+                                    <span>{selectedSubject || "Calculus II"}</span>
+                                    <span>Topics : {status === 'idle' ? '???' : currentProblem.topic}</span>
+                                </div>
+
+                                <div className="flex-1 text-2xl mb-8 p-4 border border-red-200 rounded-xl bg-red-50/20">
+                                    <MathText text={currentProblem.text} />
+                                </div>
+
+                                {(status !== "idle") && (
+                                    <div className={`mb-8 p-4 rounded border ${status === 'correct' ? 'bg-green-50 border-green-200 text-green-800' : status === 'incorrect' ? 'bg-red-50 border-red-200 text-red-800' : 'bg-blue-50 border-blue-200 text-blue-800'}`}>
+                                        {status === 'correct' && <p className="font-bold text-lg">Correct!</p>}
+                                        {status === 'incorrect' && <p className="font-bold text-lg">Incorrect, try again.</p>}
+                                        {(status === 'correct' || status === 'gave_up') && (
+                                            <div className="mt-4 border-t pt-4">
+                                                <p className="font-bold mb-2">Solution:</p>
+                                                <MathText text={currentProblem.solution} />
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                <div className="flex justify-between items-end mt-auto pt-4">
+                                    <form onSubmit={handleSubmit} className="flex items-end space-x-2">
+                                        <input
+                                            type="text"
+                                            value={userAnswer}
+                                            onChange={(e) => setUserAnswer(e.target.value)}
+                                            disabled={status === "correct" || status === "gave_up"}
+                                            className="border-2 border-orange-500 px-4 py-2 w-64 text-lg outline-none focus:ring-2 focus:ring-orange-300"
+                                            autoComplete="off"
+                                        />
+                                        <span className="text-orange-500 font-medium text-lg pb-1">Answer</span>
+                                    </form>
+
+                                    <div className="space-x-3 flex">
+                                        {(status === "correct" || status === "gave_up") ? (
+                                            <button 
+                                                onClick={handleNext}
+                                                className="border-2 border-black px-6 py-2 font-bold text-black hover:bg-gray-100"
+                                            >
+                                                NEXT PROBLEM
+                                            </button>
+                                        ) : (
+                                            <React.Fragment>
+                                                <button 
+                                                    onClick={handleSubmit}
+                                                    disabled={status === "correct" || status === "gave_up"}
+                                                    className="border-2 border-black px-6 py-2 font-bold text-black hover:bg-gray-100 disabled:opacity-50"
+                                                >
+                                                    SUBMIT
+                                                </button>
+                                                <button 
+                                                    onClick={handleGiveUp}
+                                                    disabled={status === "correct" || status === "gave_up"}
+                                                    className="border-2 border-black px-6 py-2 font-bold text-black hover:bg-gray-100 disabled:opacity-50"
+                                                >
+                                                    GIVE UP
+                                                </button>
+                                            </React.Fragment>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {currentView === 'learn' && (
+                            <div className="flex-1 flex items-center justify-center text-gray-400 text-2xl font-bold">
+                                LEARN Page (Blank)
+                            </div>
+                        )}
+                        
+                        {currentView === 'archived' && (
+                            <div className="flex-1 flex items-center justify-center text-gray-400 text-2xl font-bold">
+                                ARCHIVED Page (Blank)
+                            </div>
+                        )}
+
+                        {currentView === 'add' && (
+                            <div className="max-w-2xl mx-auto w-full border-2 border-blue-800 p-8 rounded mt-4">
+                                <h2 className="text-2xl font-bold text-blue-900 mb-6">Add a New Problem</h2>
+                                <form onSubmit={handleAddProblem} className="flex flex-col space-y-5">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Topic</label>
+                                        <input name="topic" placeholder="e.g. Limits" className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" required />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Problem Text (Use \( \) for math)</label>
+                                        <textarea name="text" rows="3" placeholder="e.g. Evaluate \( \lim_{x \to 0} \frac{\sin x}{x} \)" className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" required />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Correct Answer</label>
+                                        <input name="answer" placeholder="e.g. 1" className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" required />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Solution</label>
+                                        <textarea name="solution" rows="4" placeholder="Explain the steps..." className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500" required />
+                                    </div>
+                                    <button type="submit" className="border-2 border-black font-bold py-3 text-black hover:bg-gray-100 mt-4">
+                                        ADD PROBLEM
+                                    </button>
+                                </form>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
