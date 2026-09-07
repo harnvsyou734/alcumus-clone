@@ -25,6 +25,7 @@
     <style>
         body { background-color: #ffffff; }
         .loader { border: 3px solid #e5e7eb; border-top: 3px solid #1e40af; border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; display: inline-block; }
+        .loader-white { border: 2.5px solid rgba(255,255,255,0.35); border-top: 2.5px solid #ffffff; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -67,6 +68,54 @@
 
         // Small loading spinner
         const Spinner = () => <span className="loader"></span>;
+        const SpinnerWhite = () => <span className="loader-white"></span>;
+
+        // Small inline icon set used on the auth page
+        const MailIcon = () => (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h15A1.5 1.5 0 0 1 21 6.5v11A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5v-11Z"/><path d="m3.5 6 8 6.5 8-6.5"/></svg>
+        );
+        const LockIcon = () => (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="1.8"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+        );
+        const UserIcon = () => (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg>
+        );
+        const EyeIcon = () => (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+        );
+        const EyeOffIcon = () => (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3l18 18"/><path d="M10.6 10.6a3 3 0 0 0 4.24 4.24"/><path d="M6.6 6.6C4.4 8 3 10 2 12c0 0 3.6 7 10 7 1.8 0 3.4-.4 4.8-1.1M17.4 17.4C19.4 16 21 14 22 12c0 0-1-2-3-3.9"/></svg>
+        );
+        const CheckCircleIcon = ({ className }) => (
+            <svg className={className} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 5-5"/></svg>
+        );
+        const XCircleIcon = ({ className }) => (
+            <svg className={className} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg>
+        );
+        const BrandMarkIcon = ({ className }) => (
+            <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16"/><path d="M4 4l7 8-7 8"/><path d="M20 4l-7 8 7 8"/></svg>
+        );
+        const BookIcon = ({ className }) => (
+            <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15Z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20"/></svg>
+        );
+        const SparkIcon = ({ className }) => (
+            <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2c.6 3.6 1.9 5.6 5 7-3.1 1.4-4.4 3.4-5 7-.6-3.6-1.9-5.6-5-7 3.1-1.4 4.4-3.4 5-7Z"/></svg>
+        );
+        const FlagIcon = ({ className }) => (
+            <svg className={className} width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2.5 4L16 12H5"/></svg>
+        );
+        const PencilIcon = ({ className }) => (
+            <svg className={className} width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m16.5 3.5 4 4L8 20H4v-4Z"/></svg>
+        );
+        const ArrowRightIcon = ({ className }) => (
+            <svg className={className} width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        );
+        const LightbulbIcon = ({ className }) => (
+            <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.6.6 1 1.4 1 2.5h6c0-1.1.4-1.9 1-2.5A6 6 0 0 0 12 3Z"/></svg>
+        );
+        const InfoIcon = ({ className }) => (
+            <svg className={className} width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>
+        );
 
 
         // =============================================
@@ -98,21 +147,44 @@ const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';`}
         // =============================================
         // AUTH PAGE — Login & Signup
         // =============================================
+        const AUTH_FEATURES = [
+            'Practice endless problems across every subject',
+            'Track solved problems, attempts, and accuracy in real time',
+            'Add and share new problems with the community'
+        ];
+
         const AuthPage = () => {
             const [isLogin, setIsLogin] = useState(true);
             const [email, setEmail] = useState('');
             const [password, setPassword] = useState('');
+            const [confirmPassword, setConfirmPassword] = useState('');
+            const [confirmTouched, setConfirmTouched] = useState(false);
             const [name, setName] = useState('');
+            const [showPassword, setShowPassword] = useState(false);
+            const [showConfirm, setShowConfirm] = useState(false);
             const [loading, setLoading] = useState(false);
             const [error, setError] = useState('');
             const [message, setMessage] = useState('');
 
+            const switchMode = (loginMode) => {
+                setIsLogin(loginMode);
+                setError('');
+                setMessage('');
+            };
+
+            const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword;
+
             const handleSubmit = async (e) => {
                 e.preventDefault();
-                setLoading(true);
                 setError('');
                 setMessage('');
 
+                if (!isLogin && password !== confirmPassword) {
+                    setError("Passwords don't match. Please double-check and try again.");
+                    return;
+                }
+
+                setLoading(true);
                 if (isLogin) {
                     const { error } = await db.auth.signInWithPassword({ email, password });
                     if (error) setError(error.message);
@@ -132,64 +204,197 @@ const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';`}
             };
 
             return (
-                <div className="max-w-md mx-auto mt-20 p-8 border-2 border-blue-800 rounded">
-                    <h1 className="text-3xl font-bold text-blue-900 mb-2">Alcumus Clone</h1>
-                    <p className="text-gray-500 mb-8">Math practice, powered by community</p>
+                <div className="min-h-screen flex font-sans">
+                    {/* ===== Left branded panel — desktop only ===== */}
+                    <div className="hidden lg:flex lg:w-[44%] relative bg-blue-900 overflow-hidden flex-col justify-between p-14">
+                        <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 640 900">
+                            <defs>
+                                <pattern id="authGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                    <path d="M40 0H0V40" fill="none" stroke="#ffffff" strokeWidth="1" opacity="0.06" />
+                                </pattern>
+                            </defs>
+                            <rect width="640" height="900" fill="url(#authGrid)" />
+                            <text x="430" y="260" fontSize="230" fill="#ffffff" opacity="0.055" fontFamily="Georgia, 'Times New Roman', serif">&#960;</text>
+                            <path d="M-30 640 C 90 520, 210 760, 330 580 S 550 440, 700 560" fill="none" stroke="#f97316" strokeWidth="3" opacity="0.4" strokeLinecap="round" />
+                            <circle cx="120" cy="150" r="3" fill="#f97316" opacity="0.5" />
+                            <circle cx="520" cy="120" r="3" fill="#f97316" opacity="0.3" />
+                        </svg>
 
-                    {/* Toggle Login / Sign Up */}
-                    <div className="flex mb-6 border-b-2 border-gray-200">
-                        <button
-                            className={`flex-1 pb-3 font-bold text-lg ${isLogin ? 'text-blue-800 border-b-2 border-blue-800' : 'text-gray-400'}`}
-                            onClick={() => { setIsLogin(true); setError(''); setMessage(''); }}
-                        >
-                            LOG IN
-                        </button>
-                        <button
-                            className={`flex-1 pb-3 font-bold text-lg ${!isLogin ? 'text-blue-800 border-b-2 border-blue-800' : 'text-gray-400'}`}
-                            onClick={() => { setIsLogin(false); setError(''); setMessage(''); }}
-                        >
-                            SIGN UP
-                        </button>
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-3 mb-5">
+                                <div className="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center">
+                                    <BrandMarkIcon className="text-white" />
+                                </div>
+                                <h1 className="text-2xl font-extrabold text-white">Alcumus Clone</h1>
+                            </div>
+                            <p className="text-indigo-100 text-[15px] max-w-xs leading-relaxed">Math practice, powered by community.</p>
+                        </div>
+
+                        <div className="relative z-10 flex flex-col gap-4">
+                            {AUTH_FEATURES.map((feature) => (
+                                <div key={feature} className="flex items-start gap-3">
+                                    <span className="w-[22px] h-[22px] mt-0.5 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center flex-shrink-0">
+                                        <CheckCircleIcon className="w-3 h-3" />
+                                    </span>
+                                    <span className="text-indigo-100 text-sm leading-relaxed">{feature}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-                        {!isLogin && (
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Display Name</label>
-                                <input
-                                    type="text" value={name} onChange={(e) => setName(e.target.value)}
-                                    placeholder="e.g. John Doe"
-                                    className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500"
+                    {/* ===== Right form panel ===== */}
+                    <div className="flex-1 flex items-center justify-center p-6 sm:p-12 bg-white">
+                        <div className="w-full max-w-[420px]">
+                            {/* Mobile-only compact brand header */}
+                            <div className="lg:hidden flex items-center gap-2.5 mb-1">
+                                <div className="w-9 h-9 rounded-lg bg-blue-800 flex items-center justify-center">
+                                    <BrandMarkIcon className="text-white w-4 h-4" />
+                                </div>
+                                <h1 className="text-lg font-extrabold text-blue-900">Alcumus Clone</h1>
+                            </div>
+                            <p className="lg:hidden text-sm text-gray-500 mb-7">Math practice, powered by community.</p>
+
+                            {/* Tabs with sliding indicator */}
+                            <div className="relative flex border-b-2 border-gray-200 mb-7">
+                                <button
+                                    type="button"
+                                    className={`flex-1 pb-3.5 font-bold text-base uppercase tracking-wide transition-colors ${isLogin ? 'text-blue-800' : 'text-gray-400'}`}
+                                    onClick={() => switchMode(true)}
+                                >
+                                    Log In
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`flex-1 pb-3.5 font-bold text-base uppercase tracking-wide transition-colors ${!isLogin ? 'text-orange-600' : 'text-gray-400'}`}
+                                    onClick={() => switchMode(false)}
+                                >
+                                    Sign Up
+                                </button>
+                                <div
+                                    className="absolute -bottom-[2px] left-0 w-1/2 h-[3px] rounded-t transition-transform duration-300 ease-out"
+                                    style={{ transform: isLogin ? 'translateX(0%)' : 'translateX(100%)', backgroundColor: isLogin ? '#1e40af' : '#ea580c' }}
                                 />
                             </div>
-                        )}
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-1">Email</label>
-                            <input
-                                type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                                placeholder="you@example.com" required
-                                className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-1">Password</label>
-                            <input
-                                type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                                placeholder="At least 6 characters" required minLength={6}
-                                className="w-full border-2 border-gray-300 p-2 rounded outline-none focus:border-blue-500"
-                            />
-                        </div>
 
-                        {error && <p className="text-red-600 text-sm bg-red-50 p-2 rounded">{error}</p>}
-                        {message && <p className="text-green-600 text-sm bg-green-50 p-2 rounded">{message}</p>}
+                            <h2 className="text-[22px] font-extrabold text-blue-900 mb-1">{isLogin ? 'Welcome back' : 'Create your account'}</h2>
+                            <p className="text-sm text-gray-500 mb-6">{isLogin ? 'Log in to keep practicing.' : 'Join the community and start practicing.'}</p>
 
-                        <button
-                            type="submit" disabled={loading}
-                            className="border-2 border-black font-bold py-3 text-black hover:bg-gray-100 disabled:opacity-50 mt-2"
-                        >
-                            {loading ? <Spinner /> : (isLogin ? 'LOG IN' : 'CREATE ACCOUNT')}
-                        </button>
-                    </form>
+                            <form onSubmit={handleSubmit} className="flex flex-col">
+                                {/* Display Name — sign up only, animated */}
+                                <div
+                                    className="overflow-hidden transition-all duration-300 ease-in-out"
+                                    style={{ maxHeight: isLogin ? '0px' : '90px', opacity: isLogin ? 0 : 1, marginBottom: isLogin ? '0px' : '18px' }}
+                                >
+                                    <label className="block text-sm font-bold text-gray-700 mb-1.5">Display Name</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                                            <UserIcon />
+                                        </span>
+                                        <input
+                                            type="text" value={name} onChange={(e) => setName(e.target.value)}
+                                            placeholder="e.g. John Doe" tabIndex={isLogin ? -1 : 0}
+                                            className="w-full border-2 border-gray-300 rounded-lg pl-11 pr-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Email */}
+                                <div className="mb-[18px]">
+                                    <label className="block text-sm font-bold text-gray-700 mb-1.5">Email</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                                            <MailIcon />
+                                        </span>
+                                        <input
+                                            type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                                            placeholder="you@example.com" required
+                                            className="w-full border-2 border-gray-300 rounded-lg pl-11 pr-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Password */}
+                                <div className="mb-[18px]">
+                                    <label className="block text-sm font-bold text-gray-700 mb-1.5">Password</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                                            <LockIcon />
+                                        </span>
+                                        <input
+                                            type={showPassword ? 'text' : 'password'} value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            placeholder="At least 6 characters" required minLength={6}
+                                            className="w-full border-2 border-gray-300 rounded-lg pl-11 pr-11 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition"
+                                        />
+                                        <button
+                                            type="button" onClick={() => setShowPassword(!showPassword)}
+                                            aria-label="Toggle password visibility"
+                                            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+                                        >
+                                            {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Confirm Password — sign up only, animated */}
+                                <div
+                                    className="overflow-hidden transition-all duration-300 ease-in-out"
+                                    style={{ maxHeight: isLogin ? '0px' : '110px', opacity: isLogin ? 0 : 1, marginBottom: isLogin ? '0px' : '18px' }}
+                                >
+                                    <label className="block text-sm font-bold text-gray-700 mb-1.5">Confirm Password</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                                            <LockIcon />
+                                        </span>
+                                        <input
+                                            type={showConfirm ? 'text' : 'password'} value={confirmPassword}
+                                            onChange={(e) => { setConfirmPassword(e.target.value); setConfirmTouched(true); }}
+                                            placeholder="Re-enter your password" tabIndex={isLogin ? -1 : 0}
+                                            className="w-full border-2 border-gray-300 rounded-lg pl-11 pr-11 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition"
+                                        />
+                                        <button
+                                            type="button" onClick={() => setShowConfirm(!showConfirm)}
+                                            aria-label="Toggle confirm password visibility"
+                                            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+                                        >
+                                            {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
+                                        </button>
+                                    </div>
+                                    {!isLogin && confirmTouched && (
+                                        passwordsMatch ? (
+                                            <div className="flex items-center gap-1.5 text-green-600 text-xs mt-1.5">
+                                                <CheckCircleIcon /> Passwords match
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-1.5 text-red-600 text-xs mt-1.5">
+                                                <XCircleIcon /> Passwords don't match
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+
+                                {error && (
+                                    <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-600 text-sm px-3.5 py-2.5 rounded-lg mb-[18px]">
+                                        <XCircleIcon className="mt-0.5 flex-shrink-0" />
+                                        <span>{error}</span>
+                                    </div>
+                                )}
+                                {message && (
+                                    <div className="flex items-start gap-2 bg-green-50 border border-green-200 text-green-600 text-sm px-3.5 py-2.5 rounded-lg mb-[18px]">
+                                        <CheckCircleIcon className="mt-0.5 flex-shrink-0" />
+                                        <span>{message}</span>
+                                    </div>
+                                )}
+
+                                <button
+                                    type="submit" disabled={loading}
+                                    className="w-full bg-blue-800 hover:bg-blue-900 disabled:opacity-70 text-white font-bold py-3.5 rounded-lg tracking-wide transition flex items-center justify-center gap-2"
+                                >
+                                    {loading ? <SpinnerWhite /> : (isLogin ? 'LOG IN' : 'CREATE ACCOUNT')}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             );
         };
@@ -203,6 +408,7 @@ const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';`}
             const [userProfile, setUserProfile] = useState({ name: 'Loading...', institute: '', major: '', picture_url: '' });
             const [subjects, setSubjects] = useState([]);
             const [selectedSubject, setSelectedSubject] = useState(null);
+            const [topicFilter, setTopicFilter] = useState(null);
             const [stats, setStats] = useState({ solved: 0, attempts: 0, total: 0 });
 
             // Fetch profile + subjects + stats on mount
@@ -239,11 +445,21 @@ const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';`}
             };
 
             const navigate = (view) => {
+                if (view !== 'play') setTopicFilter(null);
                 setCurrentView(view);
             };
 
             const goToPlay = (subject) => {
+                setTopicFilter(null);
                 setSelectedSubject(subject);
+                setCurrentView('play');
+            };
+
+            // From LEARN: practise one topic instead of the whole subject
+            const goToPractice = (topic, subjectId) => {
+                const subj = subjects.find(s => s.id === subjectId) || selectedSubject;
+                setTopicFilter(topic);
+                setSelectedSubject(subj);
                 setCurrentView('play');
             };
 
@@ -344,17 +560,21 @@ const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';`}
                                 session={session}
                                 subject={selectedSubject}
                                 subjects={subjects}
-                                onSelectSubject={setSelectedSubject}
+                                topicFilter={topicFilter}
+                                onSelectSubject={(s) => { setTopicFilter(null); setSelectedSubject(s); }}
+                                onClearTopic={() => setTopicFilter(null)}
                                 onStatsChange={refreshStats}
                             />
                         )}
 
 
-                        {/* ========== LEARN VIEW (placeholder) ========== */}
+                        {/* ========== LEARN VIEW ========== */}
                         {currentView === 'learn' && (
-                            <div className="flex-1 flex items-center justify-center text-gray-400 text-2xl font-bold">
-                                LEARN Page (Coming Soon)
-                            </div>
+                            <LearnView
+                                subject={selectedSubject}
+                                subjects={subjects}
+                                onPractice={goToPractice}
+                            />
                         )}
 
                         {/* ========== ARCHIVED VIEW (placeholder) ========== */}
@@ -388,14 +608,19 @@ const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';`}
         // =============================================
         // PLAY VIEW — Solve problems
         // =============================================
-        const PlayView = ({ session, subject, subjects, onSelectSubject, onStatsChange }) => {
+        const PlayView = ({ session, subject, subjects, topicFilter, onSelectSubject, onClearTopic, onStatsChange }) => {
             const [currentProblem, setCurrentProblem] = useState(null);
             const [userAnswer, setUserAnswer] = useState('');
             const [status, setStatus] = useState('idle');
             const [loading, setLoading] = useState(true);
             const [allSolved, setAllSolved] = useState(false);
+            const [streak, setStreak] = useState(0);
 
-            const fetchProblem = useCallback(async (subjectToFetch) => {
+            useEffect(() => {
+                setStreak(0);
+            }, [subject, topicFilter]);
+
+            const fetchProblem = useCallback(async (subjectToFetch, topic) => {
                 setLoading(true);
                 setUserAnswer('');
                 setStatus('idle');
@@ -415,6 +640,7 @@ const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';`}
                 // 2. Fetch all problems for this subject
                 let query = db.from('problems').select('*');
                 if (subjectId) query = query.eq('subject_id', subjectId);
+                if (topic) query = query.eq('topic_id', topic.id);
                 const { data: allProblems } = await query;
 
                 if (!allProblems || allProblems.length === 0) {
@@ -439,8 +665,8 @@ const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';`}
             }, [session]);
 
             useEffect(() => {
-                fetchProblem(subject);
-            }, [subject, fetchProblem]);
+                fetchProblem(subject, topicFilter);
+            }, [subject, topicFilter, fetchProblem]);
 
             const handleSubmit = async (e) => {
                 if (e) e.preventDefault();
@@ -458,7 +684,12 @@ const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';`}
                 });
 
                 setStatus(isCorrect ? 'correct' : 'incorrect');
-                if (isCorrect) onStatsChange();
+                if (isCorrect) {
+                    setStreak(s => s + 1);
+                    onStatsChange();
+                } else {
+                    setStreak(0);
+                }
             };
 
             const handleGiveUp = async () => {
@@ -470,10 +701,11 @@ const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';`}
                     user_answer: '(gave up)'
                 });
                 setStatus('gave_up');
+                setStreak(0);
             };
 
             const handleNext = () => {
-                fetchProblem(subject);
+                fetchProblem(subject, topicFilter);
                 onStatsChange();
             };
 
@@ -485,19 +717,36 @@ const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';`}
                 );
             }
 
+            const solved = status === 'correct' || status === 'gave_up';
+
             return (
                 <div className="flex flex-col flex-1">
+                    {/* Active topic filter, set from the LEARN page */}
+                    {topicFilter && (
+                        <div className="mb-4 flex items-center justify-between gap-3 px-4 py-2 bg-blue-50 border border-blue-100 rounded">
+                            <span className="text-sm text-blue-900">
+                                Practising <strong>{topicFilter.name}</strong>
+                                {topicFilter.section_ref && <span className="text-blue-400"> · {topicFilter.section_ref}</span>}
+                            </span>
+                            <button onClick={onClearTopic}
+                                className="text-xs text-blue-600 hover:text-blue-900 underline whitespace-nowrap">
+                                all topics
+                            </button>
+                        </div>
+                    )}
+
                     {/* Subject selector */}
                     {!subject && subjects.length > 0 && (
-                        <div className="mb-6 p-4 bg-blue-50 rounded border border-blue-200">
-                            <p className="font-bold text-blue-800 mb-3">Select a subject to practice:</p>
+                        <div className="mb-6 p-5 bg-blue-50 rounded-xl border border-blue-100">
+                            <p className="font-bold text-blue-900 mb-3">Select a subject to practice:</p>
                             <div className="flex flex-wrap gap-2">
                                 {subjects.map(s => (
                                     <button
                                         key={s.id}
                                         onClick={() => onSelectSubject(s)}
-                                        className="border-2 border-blue-800 px-4 py-2 font-medium text-blue-800 hover:bg-blue-100 rounded"
+                                        className="flex items-center gap-1.5 border-2 border-blue-800 px-4 py-2 font-medium text-blue-800 hover:bg-blue-800 hover:text-white rounded-full transition-colors"
                                     >
+                                        <BookIcon />
                                         {s.name}
                                     </button>
                                 ))}
@@ -510,74 +759,430 @@ const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';`}
                             No problems available for this subject yet. Add some!
                         </div>
                     ) : (
-                        <div className="border-2 border-blue-800 p-8 min-h-[400px] flex flex-col relative flex-1 mb-8">
+                        <div className="border-2 border-blue-800 rounded-xl p-8 min-h-[400px] flex flex-col relative flex-1 mb-8 bg-white">
                             {allSolved && (
-                                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded mb-4 text-sm">
-                                    🎉 You've solved all problems in this subject! Here's one to review.
+                                <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 px-4 py-2.5 rounded-lg mb-5 text-sm">
+                                    <CheckCircleIcon className="flex-shrink-0" />
+                                    You've solved all problems in this subject! Here's one to review.
                                 </div>
                             )}
 
-                            <div className="flex justify-between items-center mb-8 text-blue-800 text-xl font-medium">
-                                <span>{subject ? subject.name : 'All Subjects'}</span>
-                                <span>Topic: {status === 'idle' ? '???' : currentProblem.topic}</span>
+                            {/* Header: subject, topic pill, streak badge */}
+                            <div className="flex justify-between items-center mb-7 gap-4">
+                                <div className="flex items-center gap-2 text-blue-900 font-bold text-lg">
+                                    <BookIcon />
+                                    <span>{subject ? subject.name : 'All Subjects'}</span>
+                                </div>
+                                <div className="flex items-center gap-2.5">
+                                    <span className={`flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full transition-colors ${streak > 0 ? 'bg-orange-50 text-orange-600' : 'bg-gray-100 text-gray-400'}`}>
+                                        <SparkIcon />
+                                        {streak} streak
+                                    </span>
+                                    <span className="text-sm font-medium text-gray-400 bg-gray-100 px-3 py-1.5 rounded-full">
+                                        {status === 'idle' ? 'Topic hidden' : currentProblem.topic}
+                                    </span>
+                                </div>
                             </div>
 
-                            <div className="flex-1 text-2xl mb-8 p-4 border border-red-200 rounded-xl bg-red-50/20">
+                            <div className="flex-1 text-2xl mb-7 p-6 border border-blue-100 rounded-xl bg-blue-50/40 leading-relaxed">
                                 <MathText text={currentProblem.problem_text} />
                             </div>
 
                             {status !== 'idle' && (
-                                <div className={`mb-8 p-4 rounded border ${
+                                <div className={`mb-7 p-4 rounded-lg border ${
                                     status === 'correct' ? 'bg-green-50 border-green-200 text-green-800' :
                                     status === 'incorrect' ? 'bg-red-50 border-red-200 text-red-800' :
                                     'bg-blue-50 border-blue-200 text-blue-800'
                                 }`}>
-                                    {status === 'correct' && <p className="font-bold text-lg">✅ Correct!</p>}
-                                    {status === 'incorrect' && <p className="font-bold text-lg">❌ Incorrect, try again.</p>}
-                                    {(status === 'correct' || status === 'gave_up') && (
+                                    {status === 'correct' && (
+                                        <p className="flex items-center gap-2 font-bold text-lg"><CheckCircleIcon /> Correct!</p>
+                                    )}
+                                    {status === 'incorrect' && (
+                                        <p className="flex items-center gap-2 font-bold text-lg"><XCircleIcon /> Incorrect, try again.</p>
+                                    )}
+                                    {status === 'gave_up' && (
+                                        <p className="flex items-center gap-2 font-bold text-lg"><InfoIcon /> Here's the solution.</p>
+                                    )}
+                                    {solved && (
                                         <div className="mt-4 border-t pt-4">
-                                            <p className="font-bold mb-2">Solution:</p>
+                                            <p className="flex items-center gap-1.5 font-bold mb-2"><LightbulbIcon /> Solution</p>
                                             <MathText text={currentProblem.solution} />
                                         </div>
                                     )}
                                 </div>
                             )}
 
-                            <div className="flex justify-between items-end mt-auto pt-4">
-                                <form onSubmit={handleSubmit} className="flex items-end space-x-2">
-                                    <input
-                                        type="text" value={userAnswer}
-                                        onChange={(e) => setUserAnswer(e.target.value)}
-                                        disabled={status === 'correct' || status === 'gave_up'}
-                                        className="border-2 border-orange-500 px-4 py-2 w-64 text-lg outline-none focus:ring-2 focus:ring-orange-300"
-                                        autoComplete="off" placeholder="Type your answer..."
-                                    />
-                                    <span className="text-orange-500 font-medium text-lg pb-1">Answer</span>
+                            <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4 mt-auto pt-4">
+                                <form onSubmit={handleSubmit} className="flex-1">
+                                    <label className="block text-xs font-bold text-orange-600 uppercase tracking-wide mb-1.5">Your Answer</label>
+                                    <div className="relative max-w-xs">
+                                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-orange-400 pointer-events-none">
+                                            <PencilIcon />
+                                        </span>
+                                        <input
+                                            type="text" value={userAnswer}
+                                            onChange={(e) => setUserAnswer(e.target.value)}
+                                            disabled={solved}
+                                            className="w-full border-2 border-orange-300 rounded-lg pl-10 pr-4 py-2.5 text-lg outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-100 disabled:bg-gray-50 disabled:text-gray-400 transition"
+                                            autoComplete="off" placeholder="Type your answer..."
+                                        />
+                                    </div>
                                 </form>
 
-                                <div className="space-x-3 flex">
-                                    {(status === 'correct' || status === 'gave_up') ? (
+                                <div className="flex gap-3">
+                                    {solved ? (
                                         <button onClick={handleNext}
-                                            className="border-2 border-black px-6 py-2 font-bold text-black hover:bg-gray-100">
-                                            NEXT PROBLEM
+                                            className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900 text-white font-bold px-6 py-2.5 rounded-lg transition-colors">
+                                            Next Problem <ArrowRightIcon />
                                         </button>
                                     ) : (
                                         <React.Fragment>
-                                            <button onClick={handleSubmit}
-                                                disabled={status === 'correct' || status === 'gave_up'}
-                                                className="border-2 border-black px-6 py-2 font-bold text-black hover:bg-gray-100 disabled:opacity-50">
-                                                SUBMIT
-                                            </button>
                                             <button onClick={handleGiveUp}
-                                                disabled={status === 'correct' || status === 'gave_up'}
-                                                className="border-2 border-black px-6 py-2 font-bold text-black hover:bg-gray-100 disabled:opacity-50">
-                                                GIVE UP
+                                                className="flex items-center gap-2 border-2 border-gray-300 text-gray-600 font-bold px-5 py-2.5 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors">
+                                                <FlagIcon /> Give Up
+                                            </button>
+                                            <button onClick={handleSubmit}
+                                                className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900 text-white font-bold px-6 py-2.5 rounded-lg transition-colors">
+                                                <CheckCircleIcon /> Submit
                                             </button>
                                         </React.Fragment>
                                     )}
                                 </div>
                             </div>
                         </div>
+                    )}
+                </div>
+            );
+        };
+
+
+        // =============================================
+        // LEARN VIEW — Topic map + resource popup
+        // =============================================
+
+        // Turn a youtube watch url into an embeddable one
+        const youtubeEmbed = (url, startSeconds) => {
+            const match = url.match(/[?&]v=([^&]+)/);
+            if (!match) return null;
+            return `https://www.youtube.com/embed/${match[1]}` + (startSeconds ? `?start=${startSeconds}` : '');
+        };
+
+        const ResourceModal = ({ topic, resources, subtopics, problemCount, onClose, onPractice }) => {
+            const [active, setActive] = useState(() => resources.find(r => r.url) || resources[0] || null);
+
+            // Escape closes, matching the x button
+            useEffect(() => {
+                const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+                window.addEventListener('keydown', onKey);
+                return () => window.removeEventListener('keydown', onKey);
+            }, [onClose]);
+
+            const clips = resources.filter(r => r.kind === 'video');
+            const sheets = resources.filter(r => r.kind === 'sheet');
+
+            const ResourceButton = ({ r }) => {
+                const isActive = active && active.id === r.id;
+                const missing = !r.url;
+                return (
+                    <button
+                        onClick={() => !missing && setActive(r)}
+                        disabled={missing}
+                        title={missing ? 'Not uploaded yet' : r.title}
+                        className={`w-full text-left px-3 py-2 rounded text-sm leading-snug transition-colors ${
+                            missing
+                                ? 'text-gray-300 cursor-not-allowed'
+                                : isActive
+                                    ? 'bg-blue-800 text-white font-semibold'
+                                    : 'text-blue-700 hover:bg-blue-50'
+                        }`}
+                    >
+                        {r.title}
+                        {missing && <span className="block text-xs text-gray-300">ยังไม่ได้อัปโหลด</span>}
+                    </button>
+                );
+            };
+
+            const renderViewer = () => {
+                if (!active) {
+                    return (
+                        <div className="h-full flex items-center justify-center text-gray-400 text-center px-8">
+                            ยังไม่มีสื่อการเรียนสำหรับหัวข้อนี้
+                        </div>
+                    );
+                }
+                if (!active.url) {
+                    return (
+                        <div className="h-full flex items-center justify-center text-gray-400 text-center px-8">
+                            ไฟล์ยังไม่ได้อัปโหลด
+                        </div>
+                    );
+                }
+                if (active.kind === 'video') {
+                    const src = youtubeEmbed(active.url, active.start_seconds);
+                    if (!src) {
+                        return (
+                            <div className="h-full flex items-center justify-center">
+                                <a href={active.url} target="_blank" rel="noreferrer" className="text-blue-600 underline">
+                                    Open clip in a new tab
+                                </a>
+                            </div>
+                        );
+                    }
+                    return (
+                        <iframe src={src} title={active.title} className="w-full h-full border-0"
+                            allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
+                            allowFullScreen></iframe>
+                    );
+                }
+                // sheet: the browser's own PDF viewer gives paging/zoom/print for free
+                return <iframe src={active.url} title={active.title} className="w-full h-full border-0"></iframe>;
+            };
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6"
+                    style={{ backgroundColor: 'rgba(15,23,42,0.65)' }}
+                    onClick={onClose}>
+                    <div className="bg-white w-full max-w-6xl rounded shadow-2xl flex flex-col overflow-hidden"
+                        style={{ height: '90vh' }}
+                        onClick={(e) => e.stopPropagation()}>
+
+                        {/* Title bar */}
+                        <div className="flex items-center justify-between px-5 py-3 border-b-2 border-blue-800 flex-shrink-0">
+                            <div className="min-w-0">
+                                <h2 className="text-lg font-bold text-blue-900 truncate">{topic.name}</h2>
+                                {(topic.name_th || topic.section_ref) && (
+                                    <p className="text-xs text-gray-500 truncate">
+                                        {topic.name_th}{topic.name_th && topic.section_ref ? ' · ' : ''}{topic.section_ref}
+                                    </p>
+                                )}
+                            </div>
+                            <button onClick={onClose} aria-label="Close"
+                                className="ml-4 flex-shrink-0 text-gray-400 hover:text-red-500 text-2xl leading-none px-2">
+                                &times;
+                            </button>
+                        </div>
+
+                        <div className="flex flex-1 min-h-0 flex-col sm:flex-row">
+                            {/* Resource list */}
+                            <div className="sm:w-72 flex-shrink-0 border-b-2 sm:border-b-0 sm:border-r-2 border-gray-100 overflow-y-auto p-3 space-y-4">
+                                {clips.length > 0 && (
+                                    <div>
+                                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wide px-3 mb-1">คลิป</h3>
+                                        <div className="space-y-1">
+                                            {clips.map(r => <ResourceButton key={r.id} r={r} />)}
+                                        </div>
+                                    </div>
+                                )}
+                                {sheets.length > 0 && (
+                                    <div>
+                                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wide px-3 mb-1">ชีท</h3>
+                                        <div className="space-y-1">
+                                            {sheets.map(r => <ResourceButton key={r.id} r={r} />)}
+                                        </div>
+                                    </div>
+                                )}
+                                {subtopics.length > 0 && (
+                                    <div>
+                                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wide px-3 mb-1">หัวข้อย่อย</h3>
+                                        <ul className="px-3 space-y-1 text-sm text-gray-600">
+                                            {subtopics.map(s => (
+                                                <li key={s.id}>
+                                                    {s.section_ref && <span className="text-gray-400 mr-1">{s.section_ref}</span>}
+                                                    {s.name}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                                <div className="pt-1">
+                                    <button
+                                        onClick={() => onPractice(topic)}
+                                        disabled={problemCount === 0}
+                                        className={`w-full py-2 rounded font-bold text-sm transition-colors ${
+                                            problemCount === 0
+                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                : 'bg-blue-800 text-white hover:bg-blue-900'
+                                        }`}
+                                    >
+                                        ฝึกโจทย์ ({problemCount})
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Viewer */}
+                            <div className="flex-1 min-h-0 bg-gray-50">
+                                {renderViewer()}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const LearnView = ({ subject, subjects, onPractice }) => {
+            const [topics, setTopics] = useState([]);
+            const [subtopics, setSubtopics] = useState([]);
+            const [resources, setResources] = useState([]);
+            const [counts, setCounts] = useState({});
+            const [loading, setLoading] = useState(true);
+            const [setupNeeded, setSetupNeeded] = useState(false);
+            const [error, setError] = useState('');
+            const [openTopic, setOpenTopic] = useState(null);
+
+            // LEARN is per-subject; fall back to the first subject if none is picked yet
+            const [subjectId, setSubjectId] = useState(subject ? subject.id : null);
+            useEffect(() => {
+                if (!subjectId && subjects.length > 0) setSubjectId(subjects[0].id);
+            }, [subjects, subjectId]);
+
+            useEffect(() => {
+                if (!subjectId) return;
+                let cancelled = false;
+
+                const load = async () => {
+                    setLoading(true);
+                    setError('');
+                    setSetupNeeded(false);
+
+                    const { data: topicData, error: topicErr } = await db
+                        .from('topics').select('*').eq('subject_id', subjectId).order('sort_order');
+
+                    if (cancelled) return;
+
+                    if (topicErr) {
+                        // 42P01 = table does not exist, i.e. learn-setup.sql has not been run
+                        if (topicErr.code === '42P01' || /does not exist/i.test(topicErr.message || '')) {
+                            setSetupNeeded(true);
+                        } else {
+                            setError(topicErr.message);
+                        }
+                        setLoading(false);
+                        return;
+                    }
+
+                    const ids = (topicData || []).map(t => t.id);
+                    const safeIds = ids.length ? ids : [-1];
+
+                    const [subRes, resRes, probRes] = await Promise.all([
+                        db.from('subtopics').select('*').in('topic_id', safeIds).order('sort_order'),
+                        db.from('resources').select('*').in('topic_id', safeIds).order('sort_order'),
+                        db.from('problems').select('id,topic_id').eq('subject_id', subjectId)
+                    ]);
+
+                    if (cancelled) return;
+
+                    const tally = {};
+                    (probRes.data || []).forEach(p => {
+                        if (p.topic_id) tally[p.topic_id] = (tally[p.topic_id] || 0) + 1;
+                    });
+
+                    setTopics(topicData || []);
+                    setSubtopics(subRes.data || []);
+                    setResources(resRes.data || []);
+                    setCounts(tally);
+                    setLoading(false);
+                };
+
+                load();
+                return () => { cancelled = true; };
+            }, [subjectId]);
+
+            const resourcesFor = (topicId) => resources.filter(r => r.topic_id === topicId);
+            const subtopicsFor = (topicId) => subtopics.filter(s => s.topic_id === topicId);
+
+            if (setupNeeded) {
+                return (
+                    <div className="max-w-2xl mx-auto w-full border-2 border-orange-400 p-8 rounded mt-4">
+                        <h2 className="text-xl font-bold text-orange-600 mb-3">One setup step left</h2>
+                        <p className="text-gray-600 mb-2">
+                            The LEARN tables aren't in the database yet. Open your Supabase dashboard,
+                            go to <strong>SQL Editor &rarr; New Query</strong>, paste the contents of
+                            <code className="mx-1 px-1 bg-gray-100 rounded">learn-setup.sql</code>
+                            and hit Run.
+                        </p>
+                        <p className="text-gray-400 text-sm">Then reload this page.</p>
+                    </div>
+                );
+            }
+
+            if (loading) {
+                return (
+                    <div className="flex-1 flex items-center justify-center text-gray-400 text-lg">
+                        Loading topics... <Spinner />
+                    </div>
+                );
+            }
+
+            if (error) {
+                return (
+                    <div className="flex-1 flex items-center justify-center text-red-500">{error}</div>
+                );
+            }
+
+            return (
+                <div className="space-y-5">
+                    <div className="flex items-baseline justify-between flex-wrap gap-3">
+                        <h2 className="text-2xl text-blue-900 font-bold">Topics</h2>
+                        {subjects.length > 1 && (
+                            <select
+                                value={subjectId || ''}
+                                onChange={(e) => setSubjectId(parseInt(e.target.value))}
+                                className="border-2 border-gray-300 rounded px-2 py-1 text-sm outline-none focus:border-blue-500 bg-white"
+                            >
+                                {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                            </select>
+                        )}
+                    </div>
+
+                    {topics.length === 0 ? (
+                        <p className="text-gray-400">No topics for this subject yet.</p>
+                    ) : (
+                        <div className="border-2 border-blue-800 rounded overflow-hidden">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="bg-blue-800 text-white text-xs uppercase tracking-wide">
+                                        <th className="px-4 py-2 font-bold">Topic</th>
+                                        <th className="px-3 py-2 font-bold text-center w-20">คลิป</th>
+                                        <th className="px-3 py-2 font-bold text-center w-20">ชีท</th>
+                                        <th className="px-3 py-2 font-bold text-center w-24">โจทย์</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {topics.map((t, i) => {
+                                        const rs = resourcesFor(t.id);
+                                        const clipCount = rs.filter(r => r.kind === 'video' && r.url).length;
+                                        const sheetCount = rs.filter(r => r.kind === 'sheet' && r.url).length;
+                                        const problemCount = counts[t.id] || 0;
+                                        return (
+                                            <tr key={t.id}
+                                                onClick={() => setOpenTopic(t)}
+                                                className={`cursor-pointer transition-colors hover:bg-blue-50 ${i % 2 ? 'bg-gray-50' : 'bg-white'}`}>
+                                                <td className="px-4 py-3">
+                                                    <span className="font-semibold text-blue-800">{t.name}</span>
+                                                    <span className="block text-xs text-gray-500">
+                                                        {t.name_th}{t.name_th && t.section_ref ? ' · ' : ''}{t.section_ref}
+                                                    </span>
+                                                </td>
+                                                <td className="px-3 py-3 text-center text-gray-600">{clipCount || '—'}</td>
+                                                <td className="px-3 py-3 text-center text-gray-600">{sheetCount || '—'}</td>
+                                                <td className="px-3 py-3 text-center text-gray-600">{problemCount || '—'}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+
+                    {openTopic && (
+                        <ResourceModal
+                            topic={openTopic}
+                            resources={resourcesFor(openTopic.id)}
+                            subtopics={subtopicsFor(openTopic.id)}
+                            problemCount={counts[openTopic.id] || 0}
+                            onClose={() => setOpenTopic(null)}
+                            onPractice={(t) => { setOpenTopic(null); onPractice(t, subjectId); }}
+                        />
                     )}
                 </div>
             );
